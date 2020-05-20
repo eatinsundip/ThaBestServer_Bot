@@ -5,7 +5,7 @@ import datetime
 
 #set global variables.
 now = datetime.datetime.now()
-TOKEN = "NDc5Mzg3NzkwMDIzMzI3Nzc4.Duxoqg.un2sID8oRmUKxo6GwwIx6NsCdek"
+TOKEN = "https://discord.com/developers/applications"
 client = discord.Client()
 last_update = """Added the submission.title above the 
 submission.url when posted on discord."""
@@ -27,12 +27,14 @@ def sub_random(from_sub):
 	listme = []	
 	for submission in sub:
 		if submission.stickied is False:
-			if submission.url.startswith('https://i') is True or submission.url.startswith('https://v') is True:
-				listme.append(submission)	
-	subid= random.choice(listme)
+			listme.append(submission)
+
+	subid = random.choice(listme)
 	ransub = reddit.submission(id=subid)
 	if ransub.over_18 is True:
 		return('NSFW | {}\n{}'.format(ransub.title,ransub.url))
+	elif ransub.is_self is True:
+		return('/r/{}\n\n{}'.format(submission.subreddit,submission.selftext))
 	else:
 		return('{}\n{}'.format(ransub.title,ransub.url))
 @client.event
@@ -51,10 +53,7 @@ async def on_message(message):
 	if message.author == client.user:
 		return
 	if message.content.startswith("!!"):
-		NSFW = ("""This post is NSFW and this is not and NSFW Channel.
-Please post this in an NSFW Channel.""")
-		NSFW_ERR = ("""This request failed due to
-attempting an NSFW post in a SFW channel.""")
+		NSFW = ("This post is NSFW and this is not and NSFW Channel.")
 		msgstart = sub_random(message.content[2:])
 		if msgstart.startswith('NSFW | ') and message.channel.nsfw is False:
 			await message.channel.send(NSFW)
@@ -64,7 +63,6 @@ attempting an NSFW post in a SFW channel.""")
 											message.channel,
 											message.author,
 											message.content,
-											NSFW_ERR,
 											msgstart))
 		else:
 			await message.channel.send(msgstart)
